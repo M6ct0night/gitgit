@@ -80,13 +80,14 @@ def run(code):
         script_path = script[code]
         subprocess.run(["python", script_path], cwd=os.path.dirname(script_path))
     else:
-        print("Geçersiz oyun adı!")
+        print("Geçersiz program adı!")
 
 
 
 # Ana pencere
 root = tk.Tk()
-root.overrideredirect(True)  # Başlık çubuğunu kaldır
+cd
+root.title("main")  # Başlık çubuğunu kaldır
 
 # Ekranın boyutlarını al
 screen_width = root.winfo_screenwidth()  # Ekran genişliği
