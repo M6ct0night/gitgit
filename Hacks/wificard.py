@@ -4,51 +4,41 @@ import re
 import os
 from PIL import Image, ImageTk
 
-# Başlangıç durumu
+
+# ifconfig komutunu çalıştır ve çıktısını al
+#def get_interfaces():
+    #result = subprocess.run(['ifconfig'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    #output = result.stdout
+    #return re.findall(r'^\S+', output, re.MULTILINE)
+####
+def get_interfaces():
+    # iwconfig komutunu çalıştır
+    result = subprocess.run("iwconfig 2>/dev/null | sed -E 's/ .*//'", shell=True, capture_output=True, text=True)
+
+    output = result.stdout
+
+    # IEEE içeren satırları bul ve adaptör adlarını ayıkla
+    return re.findall(r'\S+\d+', output)
+
 choosed = False
 interfaces = []
 cardd = ""
+secondPress= False
 
 
-# ifconfig komutunu çalıştır ve çıktısını al
-def get_interfaces():
-    result = subprocess.run(['ifconfig'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    output = result.stdout
-    return re.findall(r'^\S+', output, re.MULTILINE)
-
-
+######
 # Arayüz isimlerini almak
 def update_interfaces():
     global interfaces
     if not choosed:
         interfaces = get_interfaces()  # Gerçek ağ arayüzlerini al
+        if len(interfaces) < 2 :
+            global cardd
+            cardd = interfaces[0]
+            monitor(cardd)
     else:
         interfaces = ["deauth flood", "beacon spam", "evil portal", "targeted attacks"]
 
-
-# Arayüz güncellenmesi
-update_interfaces()
-
-# Label güncelleme fonksiyonları
-def change_family_members_back(event):
-    global interfaces
-    current_text = label.cget("text")
-    if current_text in interfaces:
-        prev_index = (interfaces.index(current_text) - 1) % len(interfaces)
-        new_text = interfaces[prev_index]
-    else:
-        new_text = interfaces[0]
-    label.config(text=new_text)
-
-def change_family_members(event):
-    global interfaces
-    current_text = label.cget("text")
-    if current_text in interfaces:
-        next_index = (interfaces.index(current_text) + 1) % len(interfaces)
-        new_text = interfaces[next_index]
-    else:
-        new_text = interfaces[0]
-    label.config(text=new_text)
 
 # Başlangıçta görülecek yazıyı ayarla
 def stgame(event=None):
@@ -58,34 +48,17 @@ def stgame(event=None):
     if choosed:
         print("doğruda")
         print(interfaces)
-
+        label.config(text=interfaces[0])
 # Seçilen işlemi başlat
-def stagame(event):
-    global choosed
-    if not choosed:
-        global cardd
-        cardd = label.cget("text")[:-1]
-        monitor(cardd)
-        choosed = True  # Doğru atama
-    else:
-        stgame()
-        Attacks = label.cget("text")
-        run(Attacks)
 
-# Koşan işlemi başlat
-def run(code):
-    script = {
-        "targeted attacks": os.path.join(os.getcwd(),"scan_net.py"),
-    }
-    if code in script:
-        script_path = script[code]
-        subprocess.run(["python", script_path], cwd=os.path.dirname(script_path))
-    else:
-        print("Geçersiz program adı!")
 
 # Wi-Fi kartını monitör moduna alma
 def monitor(card):
-    print("Wi-Fi süreçleri sonlandırılıyor...")
+    try:
+        subprocess.run(['sudo', 'ifconfig', card, 'up'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Hata: kart açılırken sorun oluştu: {e}")
+
     try:
         subprocess.run(['sudo', 'airmon-ng', 'check', 'kill'], check=True)
     except subprocess.CalledProcessError as e:
@@ -128,17 +101,88 @@ def monitor(card):
         print("Hata: Yeni ağ adaptörü adı alınamadı.")
 
 
+# Arayüz güncellenmesi
+update_interfaces()
+
+#if len(interfaces) < 2:
+    #cardd = interfaces[0]
+    #monitor(cardd)
+
+
+# Label güncelleme fonksiyonları
+def change_family_members_back(event):
+    global interfaces
+    current_text = label.cget("text")
+    if current_text in interfaces:
+        prev_index = (interfaces.index(current_text) - 1) % len(interfaces)
+        new_text = interfaces[prev_index]
+    else:
+        new_text = interfaces[0]
+    label.config(text=new_text)
+
+def change_family_members(event):
+    global interfaces
+    current_text = label.cget("text")
+    if current_text in interfaces:
+        next_index = (interfaces.index(current_text) + 1) % len(interfaces)
+        new_text = interfaces[next_index]
+    else:
+        new_text = interfaces[0]
+    label.config(text=new_text)
+
+# Başlangıçta görülecek yazıyı ayarla
+def stgame(event=None):
+    update_interfaces()
+    if not choosed:
+        label.config(text=interfaces[0])  # Başlangıçta görülecek yazı
+    if choosed:
+        print("doğruda")
+        print(interfaces)
+        label.config(text=interfaces[0])
+# Seçilen işlemi başlat
+
+def stagame(event):
+    global choosed
+    if not choosed:
+        global cardd
+        cardd = label.cget("text")
+        monitor(cardd)
+        choosed = True  # Doğru atama
+    else:
+        stgame()
+        Attacks = label.cget("text")
+        run(Attacks)
+
+# Koşan işlemi başlat
+def run(code):
+    script = {
+        "targeted attacks": os.path.join(os.getcwd(),"scan_net.py"),
+    }
+    if code in script:
+        script_path = script[code]
+        subprocess.run(["python", script_path], cwd=os.path.dirname(script_path))
+    else:
+        print("Geçersiz program adı!")
+
+
+
+
+
 def rere(event=None):
     global choosed  # Global 'choosed' değişkenini kullan
     global interfaces  # Global 'interfaces' değişkenini kullan
+    global secondPress
+
+    if secondPress:
+        root.quit()
 
     choosed = False  # Seçimi sıfırla
 
     # Arayüz listesine tekrar sorgu atılıyor
-    result = subprocess.run(['ifconfig'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run("iwconfig 2>/dev/null | sed -E 's/ .*//'", shell=True, capture_output=True, text=True)
     output = result.stdout
-    interfaces = re.findall(r'^\S+', output, re.MULTILINE)  # Arayüzleri regex ile al
-
+    interfaces = re.findall(r'\S+\d+', output)
+    secondPress = True
     # İlk arayüzü göster
     label.config(text=interfaces[0])
     print("Seçim sıfırlandı ve ilk arayüz gösterildi.")
