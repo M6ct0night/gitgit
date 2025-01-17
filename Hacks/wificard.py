@@ -18,7 +18,7 @@ def get_interfaces():
     output = result.stdout
 
     # IEEE içeren satırları bul ve adaptör adlarını ayıkla
-    return re.findall(r'\S+\d+', output)
+    return re.findall(r'\S+', output)
 
 choosed = False
 interfaces = []
@@ -181,7 +181,7 @@ def rere(event=None):
     # Arayüz listesine tekrar sorgu atılıyor
     result = subprocess.run("iwconfig 2>/dev/null | sed -E 's/ .*//'", shell=True, capture_output=True, text=True)
     output = result.stdout
-    interfaces = re.findall(r'\S+\d+', output)
+    interfaces = re.findall(r'\S+', output)
     secondPress = True
     # İlk arayüzü göster
     label.config(text=interfaces[0])
