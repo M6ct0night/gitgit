@@ -35,7 +35,7 @@ def update_ui():
         print(f"Resim yüklenemedi: {e}")
         background_label.config(image=None)  # Resim yüklenemezse resim alanını temizle
     label.config(fg="white" if evil else "black", bg="black" if evil else "#C6E4C0",
-                 text="Evil Mode" if evil else "Normal Mode")
+                 text="Evil Mode" if evil else "Game Mode")
 
 
 # Aile üyelerini güncelleyen fonksiyonf
@@ -64,6 +64,7 @@ def start_game(event):
     print(f"Starting game: {label.cget('text')}")
     selected = label.cget("text")
     run(selected)
+    update_ui()
 
 def run(code):
     script = {
@@ -86,7 +87,6 @@ def run(code):
 
 # Ana pencere
 root = tk.Tk()
-cd
 root.title("main")  # Başlık çubuğunu kaldır
 
 # Ekranın boyutlarını al
