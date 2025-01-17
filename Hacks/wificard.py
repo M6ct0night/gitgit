@@ -5,12 +5,6 @@ import os
 from PIL import Image, ImageTk
 
 
-# ifconfig komutunu çalıştır ve çıktısını al
-#def get_interfaces():
-    #result = subprocess.run(['ifconfig'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    #output = result.stdout
-    #return re.findall(r'^\S+', output, re.MULTILINE)
-####
 def get_interfaces():
     # iwconfig komutunu çalıştır
     result = subprocess.run("iwconfig 2>/dev/null | sed -E 's/ .*//'", shell=True, capture_output=True, text=True)
@@ -104,9 +98,6 @@ def monitor(card):
 # Arayüz güncellenmesi
 update_interfaces()
 
-#if len(interfaces) < 2:
-    #cardd = interfaces[0]
-    #monitor(cardd)
 
 
 # Label güncelleme fonksiyonları
