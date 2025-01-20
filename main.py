@@ -12,7 +12,7 @@ def toggle_evil(event):
     global evil
     evil = not evil
     update_ui()
-
+:
 
 
 # Arka plan ve metin stilini güncelleyen fonksiyon

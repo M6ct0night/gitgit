@@ -3,7 +3,7 @@ import subprocess
 import re
 import os
 from PIL import Image, ImageTk
-
+from wifiscan import start
 
 def get_interfaces():
     # iwconfig komutunu çalıştır
@@ -147,15 +147,13 @@ def stagame(event):
 # Koşan işlemi başlat
 def run(code):
     script = {
-        "targeted attacks": os.path.join(os.getcwd(),"scan_net.py"),
+        "targeted attacks": start(cardd)
     }
     if code in script:
         script_path = script[code]
         subprocess.run(["python", script_path], cwd=os.path.dirname(script_path))
     else:
         print("Geçersiz program adı!")
-
-
 
 
 
