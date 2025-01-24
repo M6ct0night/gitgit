@@ -76,6 +76,12 @@ def run(code):
         "2048": os.path.join(os.getcwd(), "games", "20488", "2048.py"),
         "space warriors": os.path.join(os.getcwd(), "games", "spacewarriorss", "spacewar.py"),
         "wifi attacks": os.path.join(os.getcwd(), "Hacks","wificard.py"),
+
+
+
+
+
+
     }
     if code in script:
         script_path = script[code]

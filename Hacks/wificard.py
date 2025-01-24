@@ -22,7 +22,7 @@ secondPress= False
 
 ######
 # Arayüz isimlerini almak
-def update_interfaces():
+def update_inter():
     global interfaces
     if not choosed:
         interfaces = get_interfaces()  # Gerçek ağ arayüzlerini al
@@ -36,7 +36,7 @@ def update_interfaces():
 
 # Başlangıçta görülecek yazıyı ayarla
 def stgame(event=None):
-    update_interfaces()
+    update_inter()
     if not choosed:
         label.config(text=interfaces[0])  # Başlangıçta görülecek yazı
     if choosed:
@@ -96,7 +96,7 @@ def monitor(card):
 
 
 # Arayüz güncellenmesi
-update_interfaces()
+update_inter()
 
 
 
@@ -123,7 +123,7 @@ def change_family_members(event):
 
 # Başlangıçta görülecek yazıyı ayarla
 def stgame(event=None):
-    update_interfaces()
+    update_inter()
     if not choosed:
         label.config(text=interfaces[0])  # Başlangıçta görülecek yazı
     if choosed:

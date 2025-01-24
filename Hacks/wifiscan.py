@@ -16,7 +16,7 @@ def packet_handler(packet):
 
     if packet.haslayer(Dot11Beacon):
         # SSID'yi al ve boşsa 'Gizli Ağ' olarak ayarla
-        ssid = packet[Dot11Elt].info.decode() if packet[Dot11Elt].info else "Gizli Ağ"
+        ssid = packet[Dot11Elt].info.decode(errors="ignore") if packet[Dot11Elt].info else "Gizli Ağ"
 
         # BSSID'yi kontrol et ve 'Gizli Ağ' olarak ayarla
         bssid = packet[Dot11].addr2 if packet[Dot11].addr2 else "Gizli Ağ"
@@ -68,7 +68,7 @@ def print_networks(sorted_networks):
 def start_sniffing(interface):
     """Belirtilen arayüzde paketleri dinler."""
     print(f"[+] Wi-Fi taraması başlatılıyor ({interface})...")
-    sniff(iface=interface, prn=packet_handler, store=False)
+    sniff(iface=interface, prn=packet_handler, store=False, stop_filter=lambda x: stop_sniffing_event.is_set())
 
 
 def on_close():
@@ -112,6 +112,11 @@ def start(card):
     stop_message_label = tk.Label(root, text="", font=("Helvetica", 12), fg="red", bg="black")
     stop_message_label.pack()
 
+    # Başlangıçta bilgi mesajı ekleyelim
+    info_message_label = tk.Label(root, text="Lütfen bekleyin, ağlar taranıyor. Bu işlem biraz zaman alabilir...",
+                                  font=("Helvetica", 14), fg="yellow", bg="black")
+    info_message_label.pack(pady=10)
+
     # Pencereyi kapatma olayını bağla
     root.protocol("WM_DELETE_WINDOW", on_close)
 
@@ -122,6 +127,7 @@ def start(card):
     try:
         # Taramayı başlat
         sniff_thread = Thread(target=start_sniffing, args=(interface,))
+        sniff_thread.daemon = True  # Ana programla birlikte durması için
         sniff_thread.start()
 
         # Tkinter penceresini sürekli açık tut
@@ -129,3 +135,5 @@ def start(card):
 
     except KeyboardInterrupt:
         print("\n[!] Çıkış yapılıyor...")
+
+
