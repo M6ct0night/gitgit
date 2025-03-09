@@ -1,6 +1,5 @@
 import tkinter as tk
 
-scanlist = [('TP-Link_CEFA', 'e8:48:b8:be:ce:fa', 2)]
 
 networks = []
 
@@ -10,6 +9,8 @@ counter = 1
 secilen = []
 # Seçim tamamlandı flag'ı
 selection_complete = False
+
+gerisayisi=1
 
 # Global etiket değişkenleri
 result_label = None
@@ -31,7 +32,7 @@ def print_first_elements():
 
 
 # Sayıyı azaltma fonksiyonu
-def decrease_number(event):
+def decrease_number(event=None):
     global counter
     if counter > 1:
         counter -= 1
@@ -64,7 +65,8 @@ def save_selected_tuple(event):
 
 # 'Enter' tuşu ile seçilen tuple'ları yazdırma
 def print_selected_list(event):
-    global selection_complete, result_label, note_label
+    global selection_complete, result_label, note_label,gerisayisi
+    gerisayisi=0
     if not selection_complete:
         selection_complete = True  # Seçim tamamlandı
         result_text = "Seçilen Tuple'lar:\n"
@@ -78,6 +80,21 @@ def print_selected_list(event):
         note_label.config(text="Seçim tamamlandı.")  # Notu güncelle
     else:
         result_label.config(text="Seçimler zaten tamamlandı!")
+
+def geri(event=None):  # event parametresini ekledik
+    global selection_complete, result_label, note_label, secilen, counter, gerisayisi
+    if gerisayisi == 0:
+        counter = 1
+        secilen = []
+        selection_complete = False
+        gerisayisi = 0
+        result_label.config(text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.")
+        note_label.config(text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.")
+        decrease_number(None)  # decrease_number çağırırken None gönderdik
+        gerisayisi = 1
+        print_first_elements()
+    else:
+        root.destroy()
 
 
 def startt(list):
@@ -113,6 +130,7 @@ def startt(list):
     root.bind("<a>", decrease_number)  # 'a' tuşuna basıldığında sayıyı azalt
     root.bind("<d>", increase_number)  # 'd' tuşuna basıldığında sayıyı artır
     root.bind("<w>", save_selected_tuple)  # 'w' tuşuna basıldığında seçilen tuple'ı kaydet
+    root.bind("<s>", geri)  # 'w' tuşuna basıldığında seçilen tuple'ı kaydet
     root.bind("<Return>", print_selected_list)  # 'Enter' tuşuna basıldığında seçilen tuple'ları yazdır
 
     # İlk yazdırma
@@ -121,4 +139,4 @@ def startt(list):
     root.mainloop()
 
 
-startt(scanlist)
+

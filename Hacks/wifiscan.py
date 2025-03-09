@@ -7,7 +7,7 @@ import tkinter as tk
 # Bulunan ağları tutmak için bir liste
 found_networks = []
 stop_sniffing_event = Event()
-
+cardi=""
 
 def packet_handler(packet):
     """Wi-Fi paketlerini işler."""
@@ -85,11 +85,18 @@ def on_key_press(event):
         stop_sniffing_event.set()  # Tarama durdurulacak
         stop_message_label.config(text="Tarama sonlandırıldı.")  # 'Tarama sonlandırıldı' mesajını göster
 
+def keypressenter():
+    root.destroy()
+    startt(found_networks)
+
+
+
 
 def start(card):
-    """Wi-Fi tarayıcıyı başlatır."""
-    interface = card
+    global cardi
 
+    interface = card
+    cardi=card
     # Tkinter penceresini başlat
     global root, network_list_frame, stop_message_label
     root = tk.Tk()
@@ -121,7 +128,8 @@ def start(card):
     root.protocol("WM_DELETE_WINDOW", on_close)
 
     # Tuş basıldığında 'w' tuşuna basıldığında taramayı durdurmak için
-    root.bind("<KeyPress>", on_key_press)
+    root.bind("<w>", on_key_press)
+    root.bind('<Return>', keypressenter)
 
     #### Başlangıç kısmı
     try:
@@ -137,3 +145,140 @@ def start(card):
         print("\n[!] Çıkış yapılıyor...")
 
 
+
+networks = found_networks
+
+# Sayacı tutacak değişken
+counter = 1
+# Seçilen tuple'ları tutacak liste
+secilen = []
+# Seçim tamamlandı flag'ı
+selection_complete = False
+
+gerisayisi=1
+
+# Global etiket değişkenleri
+result_label = None
+note_label = None
+
+# Yazdırma fonksiyonu
+def print_first_elements():
+    global result_label
+    result_text = "Tüm Ağlar:\n"
+    if networks:
+        # Tüm network'leri yazdır
+        for idx, tup in enumerate(networks, start=1):
+            result_text += f"{idx}. {tup}\n"
+    else:
+        result_text += "Ağlar bulunamadı.\n"
+
+    result_text += f"\nSeçilen Sayı: {counter}"  # Seçilen sayıyı göster
+    result_label.config(text=result_text)
+
+
+# Sayıyı azaltma fonksiyonu
+def decrease_number(event=None):
+    global counter
+    if counter > 1:
+        counter -= 1
+    print_first_elements()
+
+
+# Sayıyı artırma fonksiyonu
+def increase_number(event):
+    global counter
+    if counter < len(networks):
+        counter += 1
+    print_first_elements()
+
+
+# 'w' tuşu ile seçilen tuple'ı kaydetme
+def save_selected_tuple(event):
+    global counter, secilen, selection_complete
+    if not selection_complete:  # Seçim tamamlanmadıysa, seçim yapabilirsin
+        if 1 <= counter <= len(networks):
+            selected_tuple = networks[counter - 1]  # counter 1'den başladığı için -1
+            if selected_tuple not in secilen:  # Eğer bu tuple daha önce seçilmemişse
+                secilen.append(selected_tuple)  # Tuple'ı seçilenler listesine ekle
+                print(f"Seçilen tuple kaydedildi: {selected_tuple}")
+            else:
+                print("Bu tuple zaten seçildi.")
+            print_first_elements()
+    else:
+        print("Seçimler tamamlandı, artık 'Enter' tuşuna basabilirsiniz.")
+
+
+# 'Enter' tuşu ile seçilen tuple'ları yazdırma
+def print_selected_list(event):
+    global selection_complete, result_label, note_label,gerisayisi
+    gerisayisi=0
+    if not selection_complete:
+        selection_complete = True  # Seçim tamamlandı
+        result_text = "Seçilen Tuple'lar:\n"
+        if secilen:
+            for idx, tup in enumerate(secilen, start=1):
+                result_text += f"{idx}. {tup}\n"
+        else:
+            result_text += "Hiçbir tuple seçilmedi.\n"
+        result_label.config(text=result_text)
+        print("Seçim tamamlandı, seçilen tuple'lar gösterildi.")
+        note_label.config(text="Seçim tamamlandı.")  # Notu güncelle
+    else:
+        result_label.config(text="Seçimler zaten tamamlandı!")
+
+def geri(event=None):  # event parametresini ekledik
+    global selection_complete, result_label, note_label, secilen, counter, gerisayisi
+    if gerisayisi == 0:
+        counter = 1
+        secilen = []
+        selection_complete = False
+        gerisayisi = 0
+        result_label.config(text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.")
+        note_label.config(text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.")
+        decrease_number(None)  # decrease_number çağırırken None gönderdik
+        gerisayisi = 1
+        print_first_elements()
+    else:
+        azaz.destroy()
+        start(cardi)
+
+def startt(list):
+    global networks, azaz, counter, secilen, selection_complete, result_label, note_label
+    networks = list
+    azaz = tk.Tk()
+    azaz.title("Tuple Elemanları Yazdır")
+    azaz.geometry("480x400")  # Pencere boyutu
+    azaz.configure(bg="black")  # Arka plan siyah
+
+    # Sayacı tutacak değişken
+    counter = 1
+    # Seçilen tuple'ları tutacak liste
+    secilen = []
+    # Seçim tamamlandı flag'ı
+    selection_complete = False
+
+    # Seçilen sayıları göstermek için etiket
+    number_label = tk.Label(azaz, text="Seçilen Sayılar:", fg="green", bg="black", font=("Arial", 12))
+    number_label.pack(pady=10, fill="both", padx=20)
+
+    # Sonuç etiketi
+    result_label = tk.Label(azaz, text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.", fg="green", bg="black",
+                            font=("Arial", 12), justify="left", anchor="w")
+    result_label.pack(pady=10, fill="both", padx=20)
+
+    # Not etiketi (gizlenecek)
+    note_label = tk.Label(azaz, text="Seçimlerinizi tamamladıktan sonra 'Enter' tuşuna basın.", fg="green", bg="black",
+                          font=("Arial", 12))
+    note_label.pack(pady=10, fill="both", padx=20)
+
+    # Klavye tuşlarına basıldığında işlem yapma
+    azaz.bind("<a>", decrease_number)  # 'a' tuşuna basıldığında sayıyı azalt
+    azaz.bind("<d>", increase_number)  # 'd' tuşuna basıldığında sayıyı artır
+    azaz.bind("<w>", save_selected_tuple)  # 'w' tuşuna basıldığında seçilen tuple'ı kaydet
+    azaz.bind("<s>", geri)  # 'w' tuşuna basıldığında seçilen tuple'ı kaydet
+    azaz.bind("<Return>", print_selected_list)  # 'Enter' tuşuna basıldığında seçilen tuple'ları yazdır
+
+    # İlk yazdırma
+    print_first_elements()
+
+    root.mainloop()
