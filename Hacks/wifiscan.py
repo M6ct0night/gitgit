@@ -85,7 +85,7 @@ def on_key_press(event):
         stop_sniffing_event.set()  # Tarama durdurulacak
         stop_message_label.config(text="Tarama sonlandırıldı.")  # 'Tarama sonlandırıldı' mesajını göster
 
-def keypressenter():
+def keypressenter(event=None):
     root.destroy()
     startt(found_networks)
 
